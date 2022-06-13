@@ -10,11 +10,43 @@ export default function Home() {
     return name;
   }
 
-  const connect = async()=>{
+  const buy = async()=>{
     try{
       const name = getValue()
       if(name == "eth"){
+        await window.ethereum.send({from:account})
+      }
+      else if(name == "pol"){
+
+      }
+      else if(name == "waves"){
+
+      }
+    }
+    catch(err){
+      alert(err);
+    }
+  }
+
+  const connect = async()=>{
+    try{
+      const name = getValue()
+      console.log(name)
+      if(name == "eth"){
         await window.ethereum.enable();
+        if(window.ethereum.chainId!=="0x1"){
+          alert("change network to Ethereum");
+          throw new Error("change network to Ethereum");
+        }
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        setAccount(accounts[0]);
+      }
+      else if(name == "pol"){
+        await window.ethereum.enable();
+        if(window.ethereum.chainId!=="0x89"){
+          alert("change network to Polygon");
+          throw new Error("change network to Polygon");
+        }
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
         setAccount(accounts[0]);
       }
@@ -23,20 +55,26 @@ export default function Home() {
         const accounts = await window.solana.request({ method: 'connect' });
         setAccount(accounts.publicKey.toString());
       }
-      else if(name="ada"){
-        console.log(window.cardano)
+      else if(name=="ada"){
         await window.cardano.enable();
         const accounts = await window.cardano.getUsedAddresses()
         setAccount(accounts[0]);
       }
-      else{
-
+      else if(name=="waves"){
+        await window.ethereum.enable();
+        if(window.ethereum.chainId!=="0x53"){
+          alert("change network to Waves");
+          throw new Error("change network to Waves");
+        }
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        setAccount(accounts[0]);
       }
     }
     catch(e){
       alert(e);
     }
   }
+  console.log(account)
   return (
     <div className={styles.container}>
       <Head>
@@ -46,12 +84,19 @@ export default function Home() {
       </Head>
       <div>
         <div className = "flex flex-row-reverse items-center p-5">
-          <button className='p-6 rounded-xl bg-blue-200' onClick={connect}>Connect Wallet</button>
-          <select className='px-10 mr-10' id='list' onChange={getValue}>
+          {
+            account == ""
+            ?
+            <button className='p-6 rounded-xl bg-blue-200' onClick={connect}>Connect Wallet</button>
+            :
+            <button className='p-6 rounded-xl bg-blue-200'>Connected</button>
+          }
+          <select className='px-10 py-5 mr-10' id='list' onChange={getValue}>
             <option value="eth">Ethereum</option>
-            <option value="sol">Solano</option>
+            <option value="pol">Polygon</option>
+            <option value="sol">Solana</option>
             <option value="ada">Cardano</option>
-            {/* <option value="waves">Waves</option> */}
+            <option value="waves">Waves</option>
           </select>
         </div>
         <div>
@@ -59,8 +104,12 @@ export default function Home() {
             account=="" ?
             <h1>Connect Wallet</h1>
             :
-            <h1>{getValue()} address is {account}</h1>
-
+            <div>
+              <div className='flex flex-col items-center'>
+                <img src="./exapmle.png"></img>
+                <button className='p-4 bg-blue-300 rounded-xl mt-10' onClick={buy}>Buy</button>
+              </div>
+            </div>  
           }
         </div>
       </div>
